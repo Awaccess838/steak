@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Steak - Gambling Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Security Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://images.unsplash.com; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://forms.gle;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="no-referrer">
+    
+    <style>
+        /* Anti-selection and anti-inspection styles */
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+        
+        input, textarea, button {
+            -webkit-user-select: text;
+            -khtml-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        
+        /* Hide elements that might reveal code */
+        .devtools-detector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            z-index: -9999;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        /* Console warning */
+        .console-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #ff0000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .console-warning h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+        
+        .console-warning button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- DevTools Detector -->
+    <div class="devtools-detector"></div>
+    
+    <!-- Console Warning -->
+    <div class="console-warning" id="console-warning">
+        <h2>Developer Tools Detected!</h2>
+        <p>Accessing developer tools is strictly prohibited.</p>
+        <p>This action has been logged and your session may be terminated.</p>
+        <button id="close-warning">Close</button>
+    </div>
+
+    <div class="notification-container" id="notification-container"></div>
+    
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <div class="logo">
+                    <i class="fas fa-drumstick-bite"></i>
+                    <span>STEAK</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#" class="nav-link active" data-page="home">Home</a>
+                    <a href="#" class="nav-link" data-page="games">Games</a>
+                    <a href="#" class="nav-link" data-page="stats">Statistics</a>
+                    <a href="#" class="nav-link" data-page="responsible">Responsible Gaming</a>
+                    <a href="https://forms.gle/NgqhB8DaEeswRurq5" class="nav-link" target="_blank">Feedback</a>
+                </div>
+            </div>
+            <div class="navbar-right">
+                <div class="balance">
+                    <i class="fas fa-coins"></i>
+                    <span id="user-balance">10,000</span>
+                </div>
+                <div class="user-menu">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="#" id="deposit-btn">Deposit</a>
+                        <a href="#" id="withdraw-btn">Withdraw</a>
+                        <a href="#" id="settings-btn">Settings</a>
+                        <a href="#" id="logout-btn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Games</h3>
+                <ul class="game-list">
+                    <li class="game-item active" data-game="crash">
+                        <i class="fas fa-rocket"></i>
+                        <span>Crash</span>
+                    </li>
+                    <li class="game-item" data-game="roulette">
+                        <i class="fas fa-circle-notch"></i>
+                        <span>Roulette</span>
+                    </li>
+                    <li class="game-item" data-game="blackjack">
+                        <i class="fas fa-cards-blank"></i>
+                        <span>Blackjack</span>
+                    </li>
+                    <li class="game-item" data-game="slots">
+                        <i class="fas fa-slot-machine"></i>
+                        <span>Slots</span>
+                    </li>
+                    <li class="game-item" data-game="dice">
+                        <i class="fas fa-dice"></i>
+                        <span>Dice</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Live Stats</h3>
+                <div class="live-stats">
+                    <div class="stat-item">
+                        <span>Players Online:</span>
+                        <span id="players-online">1,247</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total Wagered:</span>
+                        <span id="total-wagered">$2,456,789</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Biggest Win:</span>
+                        <span id="biggest-win">$45,230</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page home-page" id="home-page">
+                <div class="hero">
+                    <h1>Welcome to Steak - The Ultimate Gambling Simulator</h1>
+                    <p>Experience the thrill of gambling with virtual currency. No real money involved!</p>
+                    <div class="hero-buttons">
+                        <button class="btn primary-btn" id="play-now-btn">Play Now</button>
+                        <button class="btn secondary-btn" id="learn-more-btn">Learn More</button>
+                    </div>
+                </div>
+
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Safe & Secure</h3>
+                        <p>Play without risking real money. All transactions use virtual currency only.</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-gamepad"></i>
+                        <h3>Multiple Games</h3>
+                        <p>Enjoy a variety of casino games with realistic mechanics and payouts.</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Track Your Stats</h3>
+                        <p>Monitor your gameplay with detailed statistics and history.</p>
+                    </div>
+                </div>
+
+                <div class="recent-wins">
+                    <h2>Recent Wins</h2>
+                    <div class="wins-container">
+                        <div class="win-item">
+                            <div class="win-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="win-info">
+                                <div class="win-username">Player123</div>
+                                <div class="win-amount">+$1,250.00</div>
+                            </div>
+                            <div class="win-game">Crash</div>
+                        </div>
+                        <div class="win-item">
+                            <div class="win-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="win-info">
+                                <div class="win-username">Lucky777</div>
+                                <div class="win-amount">+$560.00</div>
+                            </div>
+                            <div class="win-game">Roulette</div>
+                        </div>
+                        <div class="win-item">
+                            <div class="win-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="win-info">
+                                <div class="win-username">HighRoller</div>
+                                <div class="win-amount">+$3,420.00</div>
+                            </div>
+                            <div class="win-game">Blackjack</div>
+                        </div>
+                        <div class="win-item">
+                            <div class="win-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="win-info">
+                                <div class="win-username">SlotMaster</div>
+                                <div class="win-amount">+$890.00</div>
+                            </div>
+                            <div class="win-game">Slots</div>
+                        </div>
+                        <div class="win-item">
+                            <div class="win-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="win-info">
+                                <div class="win-username">DiceKing</div>
+                                <div class="win-amount">+$1,100.00</div>
+                            </div>
+                            <div class="win-game">Dice</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page games-page" id="games-page">
+                <div class="game-container" id="game-container">
+                    <!-- Game content will be loaded here dynamically -->
+                </div>
+            </div>
+
+            <div class="page stats-page" id="stats-page">
+                <h2>Your Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Wagered</h3>
+                        <div class="stat-value" id="total-wagered-stat">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Won</h3>
+                        <div class="stat-value" id="total-won-stat">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Net Profit</h3>
+                        <div class="stat-value" id="net-profit-stat">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Games Played</h3>
+                        <div class="stat-value" id="games-played-stat">0</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="profit-chart"></canvas>
+                </div>
+                <div class="game-history">
+                    <h3>Game History</h3>
+                    <div class="history-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Game</th>
+                                    <th>Time</th>
+                                    <th>Wager</th>
+                                    <th>Multiplier</th>
+                                    <th>Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <tr>
+                                    <td colspan="5" class="no-data">No game history yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page responsible-page" id="responsible-page">
+                <h2>Responsible Gaming</h2>
+                <div class="responsible-content">
+                    <div class="responsible-section">
+                        <h3>Understanding Gambling Risks</h3>
+                        <p>Steak is a simulator designed to mimic the experience of online gambling without using real money. However, it's important to understand the risks associated with gambling:</p>
+                        <ul>
+                            <li>Gambling can be addictive and lead to financial problems</li>
+                            <li>The odds are always in favor of the house in the long run</li>
+                            <li>Chasing losses is a common behavior that leads to bigger losses</li>
+                            <li>Gambling should never be seen as a way to make money</li>
+                        </ul>
+                    </div>
+                    <div class="responsible-section">
+                        <h3>Healthy Gaming Habits</h3>
+                        <p>To maintain a healthy relationship with gaming:</p>
+                        <ul>
+                            <li>Set time limits for your gaming sessions</li>
+                            <li>Never gamble with money you can't afford to lose</li>
+                            <li>Take regular breaks during gaming sessions</li>
+                            <li>Balance gaming with other activities and responsibilities</li>
+                        </ul>
+                    </div>
+                    <div class="responsible-section">
+                        <h3>Getting Help</h3>
+                        <p>If you or someone you know is struggling with gambling addiction, help is available:</p>
+                        <ul>
+                            <li>National Problem Gambling Helpline: 1-800-522-4700</li>
+                            <li>Gamblers Anonymous: <a href="https://www.gamblersanonymous.org" target="_blank">www.gamblersanonymous.org</a></li>
+                            <li>National Council on Problem Gambling: <a href="https://www.ncpgambling.org" target="_blank">www.ncpgambling.org</a></li>
+                        </ul>
+                    </div>
+                    <div class="self-assessment">
+                        <h3>Self-Assessment</h3>
+                        <p>Answer these questions honestly to assess your gaming habits:</p>
+                        <div class="assessment-questions">
+                            <div class="question">
+                                <p>1. Do you often gamble longer than you intended?</p>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="q1" value="yes"> Yes</label>
+                                    <label><input type="radio" name="q1" value="no"> No</label>
+                                </div>
+                            </div>
+                            <div class="question">
+                                <p>2. Have you ever lied to cover up the amount of time or money you spend gambling?</p>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="q2" value="yes"> Yes</label>
+                                    <label><input type="radio" name="q2" value="no"> No</label>
+                                </div>
+                            </div>
+                            <div class="question">
+                                <p>3. Have you ever felt guilty after gambling?</p>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="q3" value="yes"> Yes</label>
+                                    <label><input type="radio" name="q3" value="no"> No</label>
+                                </div>
+                            </div>
+                            <div class="question">
+                                <p>4. Have you ever borrowed money or sold anything to get money to gamble?</p>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="q4" value="yes"> Yes</label>
+                                    <label><input type="radio" name="q4" value="no"> No</label>
+                                </div>
+                            </div>
+                            <div class="question">
+                                <p>5. Has gambling affected your relationships or work?</p>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="q5" value="yes"> Yes</label>
+                                    <label><input type="radio" name="q5" value="no"> No</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn primary-btn" id="assess-btn">Assess</button>
+                        <div id="assessment-result" class="assessment-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3>Live Chat</h3>
+                <button class="btn-icon" id="chat-toggle">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-message system">
+                    <span class="chat-username">System</span>
+                    <span class="chat-text">Welcome to Steak! Remember, this is a simulator with virtual currency only.</span>
+                </div>
+                <div class="chat-message">
+                    <span class="chat-username">Player123</span>
+                    <span class="chat-text">Just hit a 5x multiplier on Crash! 🚀</span>
+                </div>
+                <div class="chat-message">
+                    <span class="chat-username">Lucky777</span>
+                    <span class="chat-text">Anyone else having a good run on roulette today?</span>
+                </div>
+                <div class="chat-message">
+                    <span class="chat-username">HighRoller</span>
+                    <span class="chat-text">Blackjack is treating me well today! 💰</span>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button class="btn-icon" id="chat-send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deposit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Deposit Virtual Currency</h2>
+                <button class="btn-icon close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Add virtual currency to your account. This is not real money.</p>
+                <div class="deposit-options">
+                    <div class="deposit-option" data-amount="1000">
+                        <span>$1,000</span>
+                    </div>
+                    <div class="deposit-option" data-amount="5000">
+                        <span>$5,000</span>
+                    </div>
+                    <div class="deposit-option" data-amount="10000">
+                        <span>$10,000</span>
+                    </div>
+                    <div class="deposit-option" data-amount="25000">
+                        <span>$25,000</span>
+                    </div>
+                </div>
+                <div class="custom-deposit">
+                    <label for="custom-amount">Custom Amount:</label>
+                    <input type="number" id="custom-amount" min="100" max="100000" step="100" placeholder="Enter amount">
+                </div>
+                <button class="btn primary-btn" id="confirm-deposit">Confirm Deposit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="withdraw-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Withdraw Virtual Currency</h2>
+                <button class="btn-icon close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Withdraw virtual currency from your account. This is not real money.</p>
+                <div class="withdraw-info">
+                    <div class="info-item">
+                        <span>Current Balance:</span>
+                        <span id="withdraw-balance">$10,000</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Amount to Withdraw:</span>
+                        <input type="number" id="withdraw-amount" min="100" max="100000" step="100" placeholder="Enter amount">
+                    </div>
+                </div>
+                <button class="btn primary-btn" id="confirm-withdraw">Confirm Withdrawal</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="btn-icon close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Sound Effects</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3>Background Music</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="music-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="notification-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3>Animation Speed</h3>
+                    <select id="animation-speed">
+                        <option value="slow">Slow</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="fast">Fast</option>
+                    </select>
+                </div>
+                <div class="settings-section">
+                    <h3>Theme</h3>
+                    <select id="theme-select">
+                        <option value="dark" selected>Dark</option>
+                        <option value="light">Light</option>
+                        <option value="blue">Blue</option>
+                    </select>
+                </div>
+                <button class="btn primary-btn" id="save-settings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <i class="fas fa-drumstick-bite"></i>
+                    <span>STEAK</span>
+                </div>
+                <p>A gambling simulator for entertainment purposes only. No real money is involved.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#" data-page="home">Home</a></li>
+                    <li><a href="#" data-page="games">Games</a></li>
+                    <li><a href="#" data-page="stats">Statistics</a></li>
+                    <li><a href="#" data-page="responsible">Responsible Gaming</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Fair Gaming</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Steak Simulator. All rights reserved. This is a simulation game for entertainment purposes only. No real money gambling is involved.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
